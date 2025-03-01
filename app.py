@@ -1,13 +1,14 @@
 #! /usr/bin/python
 
 import tkinter as tk
+from tkinter import ttk
 import psutil
 
 class App(tk.Tk):
     def __init__(self):
         super().__init__()
         self.title("Tkinter GUI Application")
-        self.geometry("600x400")
+        self.geometry("800x400")
         self.configure(bg='black')  # Set the background to dark color
         self.create_widgets()
 
@@ -19,22 +20,33 @@ class App(tk.Tk):
         button = tk.Button(self, text="Show File Systems", fg='white', bg='blue', command=self.show_filesystems)
         button.pack(pady=10)
 
-        self.text_area = tk.Text(self, fg='white', bg='black')
-        self.text_area.pack(pady=10, fill=tk.BOTH, expand=True)
+        # Create a Treeview widget
+        self.tree = ttk.Treeview(self, columns=("Device", "Mountpoint", "Type", "Total Size (MB)", "Used (MB)", "Free (MB)", "Percent Used"), show='headings')
+        self.tree.heading("Device", text="Device")
+        self.tree.heading("Mountpoint", text="Mountpoint")
+        self.tree.heading("Type", text="Type")
+        self.tree.heading("Total Size (MB)", text="Total Size (MB)")
+        self.tree.heading("Used (MB)", text="Used (MB)")
+        self.tree.heading("Free (MB)", text="Free (MB)")
+        self.tree.heading("Percent Used", text="Percent Used")
+
+        self.tree.pack(pady=10, fill=tk.BOTH, expand=True)
 
     def show_filesystems(self):
+        for i in self.tree.get_children():
+            self.tree.delete(i)
         partitions = psutil.disk_partitions()
-        self.text_area.delete(1.0, tk.END)  # Clear the text area
         for partition in partitions:
             usage = psutil.disk_usage(partition.mountpoint)
-            self.text_area.insert(tk.END, f"Device: {partition.device}\n")
-            self.text_area.insert(tk.END, f"Mountpoint: {partition.mountpoint}\n")
-            self.text_area.insert(tk.END, f"File system type: {partition.fstype}\n")
-            self.text_area.insert(tk.END, f"Total Size: {usage.total / (1024 * 1024):.2f} MB\n")
-            self.text_area.insert(tk.END, f"Used: {usage.used / (1024 * 1024):.2f} MB\n")
-            self.text_area.insert(tk.END, f"Free: {usage.free / (1024 * 1024):.2f} MB\n")
-            self.text_area.insert(tk.END, f"Percentage Used: {usage.percent}%\n")
-            self.text_area.insert(tk.END, "-"*40 + "\n")
+            self.tree.insert("", "end", values=(
+                partition.device,
+                partition.mountpoint,
+                partition.fstype,
+                f"{usage.total / (1024 * 1024):.2f}",
+                f"{usage.used / (1024 * 1024):.2f}",
+                f"{usage.free / (1024 * 1024):.2f}",
+                f"{usage.percent}%"
+            ))
 
 if __name__ == "__main__":
     app = App()
