@@ -12,15 +12,19 @@ class App(tk.Tk):
         self.create_widgets()
 
     def create_widgets(self):
-        # Add a button with blue as the thematic color and no border
-        button = tk.Button(self, text="Show File Systems", fg='white', bg='blue', bd=0, command=self.show_filesystems)
+        # Add a button with a less bright blue color and no border, and larger text
+        button = tk.Button(self, text="Show File Systems", fg='white', bg='#0000cc', bd=0, font=('TkDefaultFont', 12), command=self.show_filesystems)
         button.pack(pady=10)
 
         # Create a Treeview widget with a scrollbar
         frame = tk.Frame(self)
         frame.pack(pady=10, fill=tk.BOTH, expand=True)
 
-        self.tree = ttk.Treeview(frame, columns=("Device", "Mountpoint", "Type", "Total Size (MB)", "Used (MB)", "Free (MB)", "Percent Used"), show='headings')
+        style = ttk.Style()
+        style.configure("Treeview", background='black', foreground='white', fieldbackground='black')
+        style.configure("Treeview.Heading", background='black', foreground='white')
+
+        self.tree = ttk.Treeview(frame, columns=("Device", "Mountpoint", "Type", "Total Size (MB)", "Used (MB)", "Free (MB)", "Percent Used"), show='headings', style="Treeview")
         self.tree.heading("Device", text="Device")
         self.tree.heading("Mountpoint", text="Mountpoint")
         self.tree.heading("Type", text="Type")
